@@ -1,11 +1,12 @@
 {
   "functions": {
     "api/*.php": {
-      "runtime": "vercel-php@0.9.0"
+      "runtime": "vercel-php@0.7.3"
     }
   },
   "routes": [
-    { "src": "^/$", "dest": "/api/index.php" },
+    { "src": "^/$", "dest": "/api/daftar.php" },
+    { "src": "^/input$", "dest": "/api/index.php" },
     { "src": "^/daftar$", "dest": "/api/daftar.php" },
     { "src": "^/simpan$", "dest": "/api/simpan_pesanan.php" },
     { "src": "^/hapus$", "dest": "/api/hapus.php" },
