@@ -2,12 +2,11 @@
   "functions": {
     "api/*.php": {
       "runtime": "vercel-php@0.7.0"
-    },
-    "index.php": {
-      "runtime": "vercel-php@0.7.0"
-    },
-    "daftar.php": {
-      "runtime": "vercel-php@0.7.0"
     }
-  }
+  },
+  "routes": [
+    { "src": "^/$", "dest": "/api/index.php" },
+    { "src": "^/daftar$", "dest": "/api/daftar.php" },
+    { "src": "^/simpan$", "dest": "/api/simpan_pesanan.php" }
+  ]
 }
