@@ -10,7 +10,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
-        body { background-color: #f4f6f9; }
+        body {
+            background-color: #f4f6f9;
+        }
 
         .navbar {
             background: linear-gradient(90deg, #198754, #157347);
@@ -30,9 +32,21 @@
         .card-blue { background: #0d6efd; }
         .card-orange { background: #fd7e14; }
 
-        .table {
+        .table thead {
             border-radius: 10px;
-            overflow: hidden;
+        }
+
+        .badge-status {
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: gray;
         }
     </style>
 </head>
@@ -40,28 +54,24 @@
 <body>
 
 <!-- NAVBAR -->
-<nav class="navbar navbar-dark">
+<nav class="navbar navbar-dark shadow-sm">
     <div class="container">
-        <span class="navbar-brand">🧵 Nurul Penjahit</span>
+        <span class="navbar-brand fw-bold">🧵 Nurul Penjahit</span>
+        <span class="text-white small">Dashboard Kasir</span>
     </div>
 </nav>
 
 <div class="container mt-4">
 
-    <h4 class="mb-4">Dashboard Kasir</h4>
+    <h4 class="mb-4 fw-bold">Dashboard</h4>
 
     <?php
-    // TOTAL
     $total = $conn->query("SELECT SUM(biaya) as total FROM pesanan_jahit")->fetch_assoc()['total'] ?? 0;
-
-    // JUMLAH
     $jumlah = $conn->query("SELECT COUNT(*) as total FROM pesanan_jahit")->fetch_assoc()['total'];
-
-    // SELESAI
     $selesai = $conn->query("SELECT COUNT(*) as total FROM pesanan_jahit WHERE status_kerja='Selesai'")->fetch_assoc()['total'];
     ?>
 
-    <!-- DASHBOARD -->
+    <!-- DASHBOARD CARD -->
     <div class="row mb-4">
 
         <div class="col-md-4 mb-3">
@@ -94,8 +104,10 @@
     </div>
 
     <!-- BUTTON -->
-    <div class="mb-3">
-        <a href="/" class="btn btn-success btn-sm shadow-sm">+ Tambah Pesanan</a>
+    <div class="mb-3 d-flex justify-content-between">
+        <a href="/" class="btn btn-success btn-sm shadow-sm">
+            + Tambah Pesanan
+        </a>
     </div>
 
     <!-- TABEL -->
@@ -140,9 +152,9 @@
                             <td><?= $no++; ?></td>
                             <td><?= htmlspecialchars($row['nama_pelanggan']); ?></td>
                             <td><?= htmlspecialchars($row['jenis_pakaian']); ?></td>
-                            <td>Rp <?= number_format($row['biaya'], 0, ',', '.'); ?></td>
+                            <td><strong>Rp <?= number_format($row['biaya'], 0, ',', '.'); ?></strong></td>
 
-                            <!-- STATUS DROPDOWN -->
+                            <!-- STATUS -->
                             <td>
                                 <form action="/update-status" method="POST">
                                     <input type="hidden" name="id" value="<?= $row['id']; ?>">
@@ -161,20 +173,19 @@
                                 <a href="/edit?id=<?= $row['id']; ?>" class="btn btn-warning btn-sm">Edit</a>
                                 <a href="/hapus?id=<?= $row['id']; ?>" 
                                    class="btn btn-danger btn-sm"
-                                   onclick="return confirm('Yakin ingin hapus data ini?')">
+                                   onclick="return confirm('Yakin hapus data ini?')">
                                    Hapus
                                 </a>
                             </td>
                         </tr>
 
-                    <?php
-                        endwhile;
-                    else:
-                    ?>
+                    <?php endwhile; ?>
+
+                    <?php else: ?>
 
                         <tr>
-                            <td colspan="7" class="text-center text-muted">
-                                Belum ada data pesanan
+                            <td colspan="7" class="text-center text-muted py-4">
+                                Belum ada pesanan 😢
                             </td>
                         </tr>
 
@@ -186,6 +197,11 @@
             </div>
 
         </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        © 2026 Nurul Penjahit • Sistem Kasir Modern
     </div>
 
 </div>
