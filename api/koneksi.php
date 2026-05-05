@@ -1,17 +1,13 @@
 <?php
-// Data koneksi dari Clever Cloud (db_penjahit)
-$host = "bqecahcawlbufqrit348-mysql.services.clever-cloud.com";
-$user = "upsg22q8q38gm7hg";
-$pass = "MbLCNn8DzdXT575cbJ2j";
-$db   = "bqecahcawlbufqrit348";
-$port = 3306;
+$conn = pg_connect("
+    host=aws-1-ap-south-1.pooler.supabase.com
+    port=6543
+    dbname=postgres
+    user=postgres.asebapyvwgegwqzeukxm
+    password=Klinik407PK
+");
 
-// Membuat koneksi
-$conn = new mysqli($host, $user, $pass, $db, $port);
-
-// Cek koneksi
-if ($conn->connect_error) {
-    die("Koneksi gagal: " . $conn->connect_error);
+if (!$conn) {
+    die("Koneksi ke Supabase gagal");
 }
-// Jika berhasil, halaman akan kosong (ini bagus)
 ?>

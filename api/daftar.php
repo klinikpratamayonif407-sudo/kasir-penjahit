@@ -10,37 +10,18 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
-        body {
-            background-color: #f4f6f9;
-        }
+        body { background-color: #f4f6f9; }
 
         .navbar {
             background: linear-gradient(90deg, #198754, #157347);
         }
 
-        .card {
-            border-radius: 15px;
-            border: none;
-        }
+        .card { border-radius: 15px; border: none; }
 
-        .card-dashboard {
-            color: white;
-            border-radius: 15px;
-        }
-
+        .card-dashboard { color: white; }
         .card-green { background: #198754; }
         .card-blue { background: #0d6efd; }
         .card-orange { background: #fd7e14; }
-
-        .table thead {
-            border-radius: 10px;
-        }
-
-        .badge-status {
-            padding: 6px 10px;
-            border-radius: 8px;
-            font-size: 12px;
-        }
 
         .footer {
             margin-top: 30px;
@@ -66,12 +47,20 @@
     <h4 class="mb-4 fw-bold">Dashboard</h4>
 
     <?php
-    $total = $conn->query("SELECT SUM(biaya) as total FROM pesanan_jahit")->fetch_assoc()['total'] ?? 0;
-    $jumlah = $conn->query("SELECT COUNT(*) as total FROM pesanan_jahit")->fetch_assoc()['total'];
-    $selesai = $conn->query("SELECT COUNT(*) as total FROM pesanan_jahit WHERE status_kerja='Selesai'")->fetch_assoc()['total'];
+    // TOTAL PENDAPATAN
+    $q1 = pg_query($conn, "SELECT COALESCE(SUM(biaya),0) as total FROM pesanan_jahit");
+    $total = pg_fetch_assoc($q1)['total'];
+
+    // TOTAL DATA
+    $q2 = pg_query($conn, "SELECT COUNT(*) as total FROM pesanan_jahit");
+    $jumlah = pg_fetch_assoc($q2)['total'];
+
+    // SELESAI
+    $q3 = pg_query($conn, "SELECT COUNT(*) as total FROM pesanan_jahit WHERE status_kerja='Selesai'");
+    $selesai = pg_fetch_assoc($q3)['total'];
     ?>
 
-    <!-- DASHBOARD CARD -->
+    <!-- DASHBOARD -->
     <div class="row mb-4">
 
         <div class="col-md-4 mb-3">
@@ -104,10 +93,8 @@
     </div>
 
     <!-- BUTTON -->
-    <div class="mb-3 d-flex justify-content-between">
-        <a href="/" class="btn btn-success btn-sm shadow-sm">
-            + Tambah Pesanan
-        </a>
+    <div class="mb-3">
+        <a href="/" class="btn btn-success btn-sm shadow-sm">+ Tambah Pesanan</a>
     </div>
 
     <!-- TABEL -->
@@ -135,17 +122,12 @@
 
                     <?php
                     $no = 1;
-                    $result = $conn->query("SELECT * FROM pesanan_jahit ORDER BY tgl_masuk DESC");
+                    $result = pg_query($conn, "SELECT * FROM pesanan_jahit ORDER BY tgl_masuk DESC");
 
-                    if ($result->num_rows > 0):
-                        while($row = $result->fetch_assoc()):
+                    if (pg_num_rows($result) > 0):
+                        while($row = pg_fetch_assoc($result)):
 
                         $status = $row['status_kerja'];
-                        $badge = 'bg-secondary';
-
-                        if ($status == 'Proses') $badge = 'bg-warning text-dark';
-                        if ($status == 'Selesai') $badge = 'bg-success';
-                        if ($status == 'Diambil') $badge = 'bg-primary';
                     ?>
 
                         <tr>
@@ -179,9 +161,7 @@
                             </td>
                         </tr>
 
-                    <?php endwhile; ?>
-
-                    <?php else: ?>
+                    <?php endwhile; else: ?>
 
                         <tr>
                             <td colspan="7" class="text-center text-muted py-4">
@@ -199,7 +179,6 @@
         </div>
     </div>
 
-    <!-- FOOTER -->
     <div class="footer">
         © 2026 Nurul Penjahit • Sistem Kasir Modern
     </div>
