@@ -16,18 +16,31 @@
             background: linear-gradient(90deg, #198754, #157347);
         }
 
-        .card { border-radius: 15px; border: none; }
+        .card {
+            border-radius: 15px;
+            border: none;
+        }
 
         .card-dashboard { color: white; }
+
         .card-green { background: #198754; }
         .card-blue { background: #0d6efd; }
         .card-orange { background: #fd7e14; }
+
+        .table thead {
+            border-radius: 10px;
+        }
 
         .footer {
             margin-top: 30px;
             text-align: center;
             font-size: 12px;
             color: gray;
+        }
+
+        .btn-action {
+            padding: 4px 8px;
+            font-size: 12px;
         }
     </style>
 </head>
@@ -36,31 +49,28 @@
 
 <!-- NAVBAR -->
 <nav class="navbar navbar-dark shadow-sm">
-    <div class="container">
+    <div class="container d-flex justify-content-between">
         <span class="navbar-brand fw-bold">🧵 Nurul Penjahit</span>
-        <span class="text-white small">Dashboard Kasir</span>
+
+        <div>
+            <a href="/" class="btn btn-light btn-sm">Dashboard</a>
+            <a href="/input" class="btn btn-warning btn-sm">+ Tambah Pesanan</a>
+        </div>
     </div>
 </nav>
 
 <div class="container mt-4">
 
-    <h4 class="mb-4 fw-bold">Dashboard</h4>
+    <h4 class="mb-4 fw-bold">Dashboard Kasir</h4>
 
     <?php
-    // TOTAL PENDAPATAN
-    $q1 = pg_query($conn, "SELECT COALESCE(SUM(biaya),0) as total FROM pesanan_jahit");
-    $total = pg_fetch_assoc($q1)['total'];
-
-    // TOTAL DATA
-    $q2 = pg_query($conn, "SELECT COUNT(*) as total FROM pesanan_jahit");
-    $jumlah = pg_fetch_assoc($q2)['total'];
-
-    // SELESAI
-    $q3 = pg_query($conn, "SELECT COUNT(*) as total FROM pesanan_jahit WHERE status_kerja='Selesai'");
-    $selesai = pg_fetch_assoc($q3)['total'];
+    // AMAN DARI NULL
+    $total = pg_fetch_assoc(pg_query($conn, "SELECT COALESCE(SUM(biaya),0) as total FROM pesanan_jahit"))['total'];
+    $jumlah = pg_fetch_assoc(pg_query($conn, "SELECT COUNT(*) as total FROM pesanan_jahit"))['total'];
+    $selesai = pg_fetch_assoc(pg_query($conn, "SELECT COUNT(*) as total FROM pesanan_jahit WHERE status_kerja='Selesai'"))['total'];
     ?>
 
-    <!-- DASHBOARD -->
+    <!-- DASHBOARD CARD -->
     <div class="row mb-4">
 
         <div class="col-md-4 mb-3">
@@ -92,9 +102,11 @@
 
     </div>
 
-    <!-- BUTTON -->
+    <!-- QUICK ACTION -->
     <div class="mb-3">
-        <a href="/" class="btn btn-success btn-sm shadow-sm">+ Tambah Pesanan</a>
+        <a href="/input" class="btn btn-success shadow-sm">
+            + Tambah Pesanan Baru
+        </a>
     </div>
 
     <!-- TABEL -->
@@ -152,9 +164,9 @@
 
                             <!-- AKSI -->
                             <td>
-                                <a href="/edit?id=<?= $row['id']; ?>" class="btn btn-warning btn-sm">Edit</a>
-                                <a href="/hapus?id=<?= $row['id']; ?>" 
-                                   class="btn btn-danger btn-sm"
+                                <a href="/edit?id=<?= $row['id']; ?>" class="btn btn-warning btn-action">Edit</a>
+                                <a href="/hapus?id=<?= $row['id']; ?>"
+                                   class="btn btn-danger btn-action"
                                    onclick="return confirm('Yakin hapus data ini?')">
                                    Hapus
                                 </a>
@@ -179,6 +191,7 @@
         </div>
     </div>
 
+    <!-- FOOTER -->
     <div class="footer">
         © 2026 Nurul Penjahit • Sistem Kasir Modern
     </div>
