@@ -1,25 +1,21 @@
 <?php
-// 1. panggil koneksi database
 include 'koneksi.php';
 
-// 2. cek apakah ID ada
 if (!isset($_GET['id'])) {
     die("ID tidak ditemukan");
 }
 
-// 3. amankan input
 $id = intval($_GET['id']);
 
-// 4. pakai query aman (prepared statement)
-$stmt = $koneksi->prepare("DELETE FROM pesanan WHERE id = ?");
-$stmt->bind_param("i", $id);
+// QUERY POSTGRESQL (BENAR)
+$query = "DELETE FROM pesanan_jahit WHERE id = $id";
 
-// 5. eksekusi
-if ($stmt->execute()) {
-    // sukses hapus
+$result = pg_query($conn, $query);
+
+if ($result) {
     header("Location: /daftar");
     exit;
 } else {
-    echo "Gagal menghapus data: " . $koneksi->error;
+    echo "Gagal menghapus data";
 }
 ?>
