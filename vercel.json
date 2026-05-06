@@ -1,17 +1,15 @@
 {
   "functions": {
     "api/*.php": {
-      "runtime": "vercel-php@0.7.3"
+      "runtime": "vercel-php@0.8.0"
     }
   },
   "routes": [
-    { "src": "^/$", "dest": "/api/daftar.php" },
-    { "src": "^/input$", "dest": "/api/index.php" },
-    { "src": "^/daftar$", "dest": "/api/daftar.php" },
+    { "src": "^/$", "dest": "/index.php" },
+    { "src": "^/daftar$", "dest": "/daftar.php" },
     { "src": "^/simpan$", "dest": "/api/simpan_pesanan.php" },
     { "src": "^/hapus$", "dest": "/api/hapus.php" },
     { "src": "^/edit$", "dest": "/api/edit.php" },
-    { "src": "^/update$", "dest": "/api/update.php" },
-    { "src": "^/update-status$", "dest": "/api/update_status.php" }
+    { "src": "^/(.*\\.php)$", "dest": "/$1" }
   ]
 }
