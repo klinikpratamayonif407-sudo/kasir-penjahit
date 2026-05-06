@@ -1,5 +1,10 @@
 <?php 
 include 'koneksi.php';
+
+// CEK KONEKSI AMAN
+if (!$conn) {
+    die("Koneksi database gagal");
+}
 ?>
 
 <!DOCTYPE html>
@@ -32,6 +37,10 @@ body { background:#f4f6f9; }
 }
 
 .btn { border-radius:10px; }
+
+.shadow-soft {
+    box-shadow:0 4px 20px rgba(0,0,0,0.08);
+}
 </style>
 </head>
 
@@ -48,36 +57,36 @@ body { background:#f4f6f9; }
 <h4 class="fw-bold mb-3">Dashboard Kasir</h4>
 
 <?php
-// ======================
-// QUERY POSTGRESQL FIX
-// ======================
+// ==========================
+// QUERY POSTGRESQL FIX SAFE
+// ==========================
 
-$total = pg_fetch_assoc(pg_query($conn,"SELECT COALESCE(SUM(biaya),0) as t FROM pesanan_jahit"))['t'];
+$total = pg_fetch_assoc(pg_query($conn,"SELECT COALESCE(SUM(biaya),0) AS t FROM pesanan_jahit"))['t'] ?? 0;
 
-$jumlah = pg_fetch_assoc(pg_query($conn,"SELECT COUNT(*) as t FROM pesanan_jahit"))['t'];
+$jumlah = pg_fetch_assoc(pg_query($conn,"SELECT COUNT(*) AS t FROM pesanan_jahit"))['t'] ?? 0;
 
-$selesai = pg_fetch_assoc(pg_query($conn,"SELECT COUNT(*) as t FROM pesanan_jahit WHERE status_kerja='Selesai'"))['t'];
+$selesai = pg_fetch_assoc(pg_query($conn,"SELECT COUNT(*) AS t FROM pesanan_jahit WHERE status_kerja='Selesai'"))['t'] ?? 0;
 ?>
 
 <!-- DASHBOARD -->
 <div class="row mb-3">
 
 <div class="col-md-4 mb-2">
-<div class="card card-green p-3 shadow">
+<div class="card card-green p-3 shadow-soft">
 <h6>Total Pendapatan</h6>
 <h4>Rp <?= number_format($total,0,',','.'); ?></h4>
 </div>
 </div>
 
 <div class="col-md-4 mb-2">
-<div class="card card-blue p-3 shadow">
+<div class="card card-blue p-3 shadow-soft">
 <h6>Total Pesanan</h6>
 <h4><?= $jumlah ?></h4>
 </div>
 </div>
 
 <div class="col-md-4 mb-2">
-<div class="card card-orange p-3 shadow">
+<div class="card card-orange p-3 shadow-soft">
 <h6>Selesai</h6>
 <h4><?= $selesai ?></h4>
 </div>
@@ -147,12 +156,18 @@ $q = pg_query($conn,"SELECT * FROM pesanan_jahit ORDER BY id DESC");
 if(pg_num_rows($q) > 0):
 while($r = pg_fetch_assoc($q)):
 
-$status = $r['status_kerja'];
-$badge = 'bg-secondary';
+$status = $r['status_kerja'] ?? 'Proses';
 
-if($status == 'Proses') $badge = 'bg-warning text-dark';
-if($status == 'Selesai') $badge = 'bg-success';
-if($status == 'Diambil') $badge = 'bg-primary';
+// badge status
+if($status == 'Proses') {
+    $badge = 'bg-warning text-dark';
+} elseif($status == 'Selesai') {
+    $badge = 'bg-success';
+} elseif($status == 'Diambil') {
+    $badge = 'bg-primary';
+} else {
+    $badge = 'bg-secondary';
+}
 ?>
 
 <tr>
@@ -167,9 +182,9 @@ if($status == 'Diambil') $badge = 'bg-primary';
 
 <select name="status" onchange="this.form.submit()" class="form-select form-select-sm">
 
-<option <?= $status=='Proses'?'selected':'' ?>>Proses</option>
-<option <?= $status=='Selesai'?'selected':'' ?>>Selesai</option>
-<option <?= $status=='Diambil'?'selected':'' ?>>Diambil</option>
+<option value="Proses" <?= $status=='Proses'?'selected':'' ?>>Proses</option>
+<option value="Selesai" <?= $status=='Selesai'?'selected':'' ?>>Selesai</option>
+<option value="Diambil" <?= $status=='Diambil'?'selected':'' ?>>Diambil</option>
 
 </select>
 </form>
@@ -186,7 +201,9 @@ onclick="return confirm('Yakin hapus data?')">Hapus</a>
 <?php endwhile; else: ?>
 
 <tr>
-<td colspan="6" class="text-center text-muted">Belum ada data</td>
+<td colspan="6" class="text-center text-muted">
+Belum ada data pesanan
+</td>
 </tr>
 
 <?php endif; ?>
