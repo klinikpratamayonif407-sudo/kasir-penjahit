@@ -1,8 +1,25 @@
 <?php
+// 1. panggil koneksi database
 include 'koneksi.php';
 
-$id = $_GET['id'];
+// 2. cek apakah ID ada
+if (!isset($_GET['id'])) {
+    die("ID tidak ditemukan");
+}
 
-mysqli_query($koneksi, "DELETE FROM pesanan WHERE id='$id'");
+// 3. amankan input
+$id = intval($_GET['id']);
 
-header("Location: /daftar");
+// 4. pakai query aman (prepared statement)
+$stmt = $koneksi->prepare("DELETE FROM pesanan WHERE id = ?");
+$stmt->bind_param("i", $id);
+
+// 5. eksekusi
+if ($stmt->execute()) {
+    // sukses hapus
+    header("Location: /daftar");
+    exit;
+} else {
+    echo "Gagal menghapus data: " . $koneksi->error;
+}
+?>

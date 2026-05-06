@@ -1,4 +1,6 @@
-<?php include 'koneksi.php'; ?>
+<?php 
+include 'koneksi.php';
+?>
 
 <!DOCTYPE html>
 <html lang="id">
@@ -27,13 +29,11 @@ body { background:#f4f6f9; }
 }
 
 .btn { border-radius:10px; }
-
 </style>
 </head>
 
 <body>
 
-<!-- NAVBAR -->
 <nav class="navbar navbar-dark shadow">
 <div class="container">
     <span class="navbar-brand fw-bold">🧵 Nurul Penjahit</span>
@@ -45,9 +45,9 @@ body { background:#f4f6f9; }
 <h4 class="fw-bold mb-3">Dashboard Kasir</h4>
 
 <?php
-$total = pg_fetch_assoc(pg_query($conn,"SELECT COALESCE(SUM(biaya),0) as t FROM pesanan_jahit"))['t'];
-$jumlah = pg_fetch_assoc(pg_query($conn,"SELECT COUNT(*) as t FROM pesanan_jahit"))['t'];
-$selesai = pg_fetch_assoc(pg_query($conn,"SELECT COUNT(*) as t FROM pesanan_jahit WHERE status_kerja='Selesai'"))['t'];
+$total = mysqli_fetch_assoc(mysqli_query($koneksi,"SELECT COALESCE(SUM(biaya),0) as t FROM pesanan_jahit"))['t'];
+$jumlah = mysqli_fetch_assoc(mysqli_query($koneksi,"SELECT COUNT(*) as t FROM pesanan_jahit"))['t'];
+$selesai = mysqli_fetch_assoc(mysqli_query($koneksi,"SELECT COUNT(*) as t FROM pesanan_jahit WHERE status_kerja='Selesai'"))['t'];
 ?>
 
 <!-- DASHBOARD -->
@@ -74,13 +74,13 @@ $selesai = pg_fetch_assoc(pg_query($conn,"SELECT COUNT(*) as t FROM pesanan_jahi
 </div>
 </div>
 
-<!-- FORM INPUT (LANGSUNG DI DASHBOARD) -->
+<!-- FORM INPUT -->
 <div class="card shadow mb-4">
 <div class="card-body">
 
 <h5>➕ Tambah Pesanan</h5>
 
-<form action="/simpan" method="POST" class="row g-2">
+<form action="simpan.php" method="POST" class="row g-2">
 
 <div class="col-md-3">
 <input type="text" name="nama_pelanggan" class="form-control" placeholder="Nama" required>
@@ -128,11 +128,11 @@ $selesai = pg_fetch_assoc(pg_query($conn,"SELECT COUNT(*) as t FROM pesanan_jahi
 <tbody>
 
 <?php
-$no=1;
-$q = pg_query($conn,"SELECT * FROM pesanan_jahit ORDER BY id DESC");
+$no = 1;
+$q = mysqli_query($koneksi,"SELECT * FROM pesanan_jahit ORDER BY id DESC");
 
-if(pg_num_rows($q)>0):
-while($r=pg_fetch_assoc($q)):
+if(mysqli_num_rows($q) > 0):
+while($r = mysqli_fetch_assoc($q)):
 ?>
 
 <tr>
@@ -142,8 +142,9 @@ while($r=pg_fetch_assoc($q)):
 <td>Rp <?= number_format($r['biaya'],0,',','.') ?></td>
 
 <td>
-<form action="/update-status" method="POST">
+<form action="update-status.php" method="POST">
 <input type="hidden" name="id" value="<?= $r['id'] ?>">
+
 <select name="status" onchange="this.form.submit()" class="form-select form-select-sm">
 
 <option <?= $r['status_kerja']=='Proses'?'selected':'' ?>>Proses</option>
@@ -155,13 +156,17 @@ while($r=pg_fetch_assoc($q)):
 </td>
 
 <td>
-<a href="/hapus?id=<?= $r['id'] ?>" class="btn btn-danger btn-sm">Hapus</a>
+<a href="edit.php?id=<?= $r['id'] ?>" class="btn btn-warning btn-sm">Edit</a>
+<a href="hapus.php?id=<?= $r['id'] ?>" class="btn btn-danger btn-sm"
+onclick="return confirm('Yakin hapus data?')">Hapus</a>
 </td>
 
 </tr>
 
 <?php endwhile; else: ?>
-<tr><td colspan="6" class="text-center">Belum ada data</td></tr>
+<tr>
+<td colspan="6" class="text-center">Belum ada data</td>
+</tr>
 <?php endif; ?>
 
 </tbody>
