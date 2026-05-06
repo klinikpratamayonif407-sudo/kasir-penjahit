@@ -18,7 +18,10 @@ body { background:#f4f6f9; }
     background: linear-gradient(90deg,#198754,#157347);
 }
 
-.card { border-radius:15px; border:none; }
+.card {
+    border-radius:15px;
+    border:none;
+}
 
 .card-green { background:#198754; color:white; }
 .card-blue { background:#0d6efd; color:white; }
@@ -45,33 +48,41 @@ body { background:#f4f6f9; }
 <h4 class="fw-bold mb-3">Dashboard Kasir</h4>
 
 <?php
-$total = mysqli_fetch_assoc(mysqli_query($koneksi,"SELECT COALESCE(SUM(biaya),0) as t FROM pesanan_jahit"))['t'];
-$jumlah = mysqli_fetch_assoc(mysqli_query($koneksi,"SELECT COUNT(*) as t FROM pesanan_jahit"))['t'];
-$selesai = mysqli_fetch_assoc(mysqli_query($koneksi,"SELECT COUNT(*) as t FROM pesanan_jahit WHERE status_kerja='Selesai'"))['t'];
+// ======================
+// QUERY POSTGRESQL FIX
+// ======================
+
+$total = pg_fetch_assoc(pg_query($conn,"SELECT COALESCE(SUM(biaya),0) as t FROM pesanan_jahit"))['t'];
+
+$jumlah = pg_fetch_assoc(pg_query($conn,"SELECT COUNT(*) as t FROM pesanan_jahit"))['t'];
+
+$selesai = pg_fetch_assoc(pg_query($conn,"SELECT COUNT(*) as t FROM pesanan_jahit WHERE status_kerja='Selesai'"))['t'];
 ?>
 
 <!-- DASHBOARD -->
 <div class="row mb-3">
+
 <div class="col-md-4 mb-2">
-<div class="card card-green p-3">
+<div class="card card-green p-3 shadow">
 <h6>Total Pendapatan</h6>
 <h4>Rp <?= number_format($total,0,',','.'); ?></h4>
 </div>
 </div>
 
 <div class="col-md-4 mb-2">
-<div class="card card-blue p-3">
+<div class="card card-blue p-3 shadow">
 <h6>Total Pesanan</h6>
 <h4><?= $jumlah ?></h4>
 </div>
 </div>
 
 <div class="col-md-4 mb-2">
-<div class="card card-orange p-3">
+<div class="card card-orange p-3 shadow">
 <h6>Selesai</h6>
 <h4><?= $selesai ?></h4>
 </div>
 </div>
+
 </div>
 
 <!-- FORM INPUT -->
@@ -114,6 +125,7 @@ $selesai = mysqli_fetch_assoc(mysqli_query($koneksi,"SELECT COUNT(*) as t FROM p
 <h5>📋 Daftar Pesanan</h5>
 
 <table class="table table-hover mt-3">
+
 <thead class="table-dark">
 <tr>
 <th>No</th>
@@ -129,16 +141,24 @@ $selesai = mysqli_fetch_assoc(mysqli_query($koneksi,"SELECT COUNT(*) as t FROM p
 
 <?php
 $no = 1;
-$q = mysqli_query($koneksi,"SELECT * FROM pesanan_jahit ORDER BY id DESC");
 
-if(mysqli_num_rows($q) > 0):
-while($r = mysqli_fetch_assoc($q)):
+$q = pg_query($conn,"SELECT * FROM pesanan_jahit ORDER BY id DESC");
+
+if(pg_num_rows($q) > 0):
+while($r = pg_fetch_assoc($q)):
+
+$status = $r['status_kerja'];
+$badge = 'bg-secondary';
+
+if($status == 'Proses') $badge = 'bg-warning text-dark';
+if($status == 'Selesai') $badge = 'bg-success';
+if($status == 'Diambil') $badge = 'bg-primary';
 ?>
 
 <tr>
 <td><?= $no++ ?></td>
-<td><?= $r['nama_pelanggan'] ?></td>
-<td><?= $r['jenis_pakaian'] ?></td>
+<td><?= htmlspecialchars($r['nama_pelanggan']) ?></td>
+<td><?= htmlspecialchars($r['jenis_pakaian']) ?></td>
 <td>Rp <?= number_format($r['biaya'],0,',','.') ?></td>
 
 <td>
@@ -147,9 +167,9 @@ while($r = mysqli_fetch_assoc($q)):
 
 <select name="status" onchange="this.form.submit()" class="form-select form-select-sm">
 
-<option <?= $r['status_kerja']=='Proses'?'selected':'' ?>>Proses</option>
-<option <?= $r['status_kerja']=='Selesai'?'selected':'' ?>>Selesai</option>
-<option <?= $r['status_kerja']=='Diambil'?'selected':'' ?>>Diambil</option>
+<option <?= $status=='Proses'?'selected':'' ?>>Proses</option>
+<option <?= $status=='Selesai'?'selected':'' ?>>Selesai</option>
+<option <?= $status=='Diambil'?'selected':'' ?>>Diambil</option>
 
 </select>
 </form>
@@ -164,9 +184,11 @@ onclick="return confirm('Yakin hapus data?')">Hapus</a>
 </tr>
 
 <?php endwhile; else: ?>
+
 <tr>
-<td colspan="6" class="text-center">Belum ada data</td>
+<td colspan="6" class="text-center text-muted">Belum ada data</td>
 </tr>
+
 <?php endif; ?>
 
 </tbody>
